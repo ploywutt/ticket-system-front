@@ -11,6 +11,7 @@ import {
 } from "@/components";
 import { Modal } from "@/components/modal";
 import { NotFound } from "@/components/states/notFound";
+import { Noti } from "@/components/states/noti";
 import { Ticket } from "@/lib/api/interface";
 import { cn } from "@/lib/utils/cn";
 import { formatDate } from "@/lib/utils/date";
@@ -20,9 +21,12 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertCircle, Edit, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { JSX, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function TicketPage() {
+  const notify = (title: string | JSX.Element) => toast.custom(title);
+
   const router = useRouter();
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : undefined;
@@ -49,6 +53,7 @@ export default function TicketPage() {
     onSuccess: () => {
       setIsEdit(false);
       console.log("✅ Ticket updated");
+      notify(<Noti title={id || ""} />);
     },
   });
 
@@ -101,6 +106,7 @@ export default function TicketPage() {
 
   return (
     <Container className="md:gap-4 px-4 lg:px-12 xl:px-36 pb-8">
+      <Toaster />
       <div className="flex flex-col justify-between gap-4 md:gap-8 p-8 bg-foreground rounded-md h-full">
         <div className="flex flex-col-reverse text-center md:flex-row items-center gap-1 lg:gap-4">
           <div className="flex-center">
@@ -144,7 +150,16 @@ export default function TicketPage() {
             disabled={isDeleting}
           />
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <div className={cn("self-end", { hidden: isEdit })}>
+            <Button
+              onClick={() => setIsEdit((prev) => !prev)}
+              title="Edit"
+              variant="outline"
+              icon={<Edit className="size-4" />}
+              disabled={isDeleting}
+            />
+          </div>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -206,7 +221,7 @@ export default function TicketPage() {
               />
             </div>
           </form>
-          <div className={cn("self-end", { hidden: isEdit })}>
+          {/* <div className={cn("self-end", { hidden: isEdit })}>
             <Button
               onClick={() => setIsEdit((prev) => !prev)}
               title="Edit"
@@ -214,7 +229,7 @@ export default function TicketPage() {
               icon={<Edit className="size-4" />}
               disabled={isDeleting}
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="text-right">
